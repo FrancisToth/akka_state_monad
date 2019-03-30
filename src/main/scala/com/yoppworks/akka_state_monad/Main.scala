@@ -8,9 +8,5 @@ object Main extends App {
   val barRef = system.actorOf(BarActor.props)
   val fooRef = system.actorOf(FooActor.props(barRef))
 
-//  fooRef ! FooActor.Send(SuccessfulRequest)
-
-//  fooRef ! FooActor.Send(FailedRequest)
-
-  fooRef ! FooActor.Send(TimeoutRequest)
+  fooRef ! FooActor.Send(new Request)
 }

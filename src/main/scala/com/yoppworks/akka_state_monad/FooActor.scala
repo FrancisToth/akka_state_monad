@@ -101,3 +101,6 @@ class BarActor extends Actor {
       }
   }
 }
+
+class Request
+case object SuccessfulResponse
