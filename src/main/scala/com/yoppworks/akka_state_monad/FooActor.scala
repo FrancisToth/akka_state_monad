@@ -18,15 +18,15 @@ object FooActor {
   private val CIRCUIT_BREAKER_RESET_TIMEOUT = 3 second
 
   sealed trait FooActorTransition
-  case object Retry           extends FooActorTransition
-  case object Done            extends FooActorTransition
+  case object Retry extends FooActorTransition
+  case object Done  extends FooActorTransition
 
   case class Send(request: Request)
 
   type FooActorState = (Int, Any)
 
   // This business logic is super simple but we could come up with more
-  // advanced rules combinations.
+  // advanced rule combinations.
   // The map/flatMap combinator have been added for this purpose
   // There is a nice example of how this could be done here:
   // http://patricknoir.blogspot.com/2014/12/demistify-state-monad-with-scala-22.html
