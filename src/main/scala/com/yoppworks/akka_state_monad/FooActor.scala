@@ -30,11 +30,11 @@ object FooActor {
   // The map/flatMap combinator have been added for this purpose
   // There is a nice example of how this could be done here:
   // http://patricknoir.blogspot.com/2014/12/demistify-state-monad-with-scala-22.html
-  def run: State[FooActorState, Unit] = {
-    case (nbRetry, SuccessfulResponse)        => ((), (nbRetry, Done))
-    case (nbRetry, _) if nbRetry < MAX_RETRY  => ((), (nbRetry + 1, Retry))
-    case (nbRetry, _)                         => ((), (nbRetry, Done))
-  }
+  def run: State[FooActorState, Unit] = State({
+    case (nbRetry, SuccessfulResponse) => ((), (nbRetry, Done))
+    case (nbRetry, _) if nbRetry < MAX_RETRY => ((), (nbRetry + 1, Retry))
+    case (nbRetry, _) => ((), (nbRetry, Done))
+  })
 }
 
 class FooActor(target: ActorRef) extends Actor {
