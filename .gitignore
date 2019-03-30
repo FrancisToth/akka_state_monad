@@ -1,0 +1,15 @@
+*.class
+*.log
+
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+*.iml
+*.idea/
+*.idea_modules/
+
+.DS_Store
