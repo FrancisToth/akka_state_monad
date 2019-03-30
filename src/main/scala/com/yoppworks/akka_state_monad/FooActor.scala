@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef, Cancellable, Props, Status}
 import akka.pattern.CircuitBreaker
 import akka.util.Timeout
 import com.yoppworks.akka_state_monad.FooActor._
-import com.yoppworks.akka_state_monad.StateMonad._
+import com.yoppworks.akka_state_monad.State._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -25,6 +25,11 @@ object FooActor {
 
   type FooActorState = (Int, Any)
 
+  // This business logic is super simple but we could come up with more
+  // advanced rules combinations.
+  // The map/flatMap combinator have been added for this purpose
+  // There is a nice example of how this could be done here:
+  // http://patricknoir.blogspot.com/2014/12/demistify-state-monad-with-scala-22.html
   def run: State[FooActorState, Unit] = {
     case (nbRetry, SuccessfulResponse)        => ((), (nbRetry, Done))
     case (nbRetry, _) if nbRetry < MAX_RETRY  => ((), (nbRetry + 1, Retry))
