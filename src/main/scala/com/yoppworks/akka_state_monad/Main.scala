@@ -5,8 +5,8 @@ import akka.actor.ActorSystem
 object Main extends App {
 
   val system = ActorSystem("AkkaStateMonad")
-  val barRef = system.actorOf(BarActor.props)
-  val fooRef = system.actorOf(FooActor.props(barRef))
+  val server = system.actorOf(ServerActor.props)
+  val client = system.actorOf(ClientActor.props(server))
 
-  fooRef ! FooActor.Send(new Request)
+  client ! ClientActor.Send(new Request)
 }

@@ -3,41 +3,41 @@ package com.yoppworks.akka_state_monad
 import akka.actor.{Actor, ActorRef, Cancellable, Props, Status}
 import akka.pattern.CircuitBreaker
 import akka.util.Timeout
-import com.yoppworks.akka_state_monad.FooActor._
+import com.yoppworks.akka_state_monad.ClientActor._
 import com.yoppworks.akka_state_monad.State._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.Random
 
-object FooActor {
+object ClientActor {
 
-  def props(target: ActorRef): Props = Props(new FooActor(target))
+  def props(target: ActorRef): Props = Props(new ClientActor(target))
 
   private val MAX_RETRY = 3
   private val CIRCUIT_BREAKER_RESET_TIMEOUT = 3 second
 
-  sealed trait FooActorTransition
-  case object Retry extends FooActorTransition
-  case object Done  extends FooActorTransition
+  sealed trait Transition
+  case object Retry extends Transition
+  case object Done  extends Transition
 
   case class Send(request: Request)
 
-  type FooActorState = (Int, Any)
+  type ClientActorState = (Int, Any)
 
   // This business logic is super simple but we could come up with more
   // advanced rule combinations.
   // The map/flatMap combinator have been added for this purpose
   // There is a nice example of how this could be done here:
   // http://patricknoir.blogspot.com/2014/12/demistify-state-monad-with-scala-22.html
-  def run: State[FooActorState, Unit] = State({
+  def run: State[ClientActorState, Unit] = State({
     case (nbRetry, SuccessfulResponse) => ((), (nbRetry, Done))
     case (nbRetry, _) if nbRetry < MAX_RETRY => ((), (nbRetry + 1, Retry))
     case (nbRetry, _) => ((), (nbRetry, Done))
   })
 }
 
-class FooActor(target: ActorRef) extends Actor {
+class ClientActor(server: ActorRef) extends Actor {
 
   import akka.pattern.{ask, pipe}
   import context.dispatcher
@@ -79,17 +79,17 @@ class FooActor(target: ActorRef) extends Actor {
   }
 
   def sendRequest(request: Request): Future[Any] =
-    cb.withCircuitBreaker(target ? request) pipeTo self
+    cb.withCircuitBreaker(server ? request) pipeTo self
 
   def scheduleRetry(request: Request): Cancellable =
     scheduler.scheduleOnce(CIRCUIT_BREAKER_RESET_TIMEOUT)(sendRequest(request))
 }
 
-object BarActor {
-  def props: Props = Props[BarActor]
+object ServerActor {
+  def props: Props = Props[ServerActor]
 }
 
-class BarActor extends Actor {
+class ServerActor extends Actor {
   override def receive: Receive = {
     case _ =>
       Random.nextInt(3) match {
